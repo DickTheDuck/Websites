@@ -6,6 +6,7 @@ const settings = {
   size: 25,
   speed: 1,
   collisions: true,
+  hunterMode: false,
 };
 
 const ui = {
@@ -16,6 +17,7 @@ const ui = {
   speedSlider: document.getElementById("speedSlider"),
   speedValue: document.getElementById("speedValue"),
   collisionToggle: document.getElementById("collisionToggle"),
+  hunterToggle: document.getElementById("hunterToggle"),
   disintegrateButton: document.getElementById("disintegrateButton"),
 };
 
@@ -23,6 +25,10 @@ let width = 0;
 let height = 0;
 let ducks = [];
 let particles = [];
+let isMouseDown = false;
+let spawnTimer = 0;
+let spawnPoint = { x: 0, y: 0 };
+let lastFrameTime = performance.now();
 
 const duckSprite = new Image();
 duckSprite.src = "assets/duck.png";
@@ -70,6 +76,10 @@ function bindUI() {
     settings.collisions = ui.collisionToggle.checked;
   });
 
+  ui.hunterToggle.addEventListener("change", () => {
+    settings.hunterMode = ui.hunterToggle.checked;
+  });
+
   ui.disintegrateButton.addEventListener("click", () => {
     if (ducks.length === 0) {
       return;
@@ -78,7 +88,7 @@ function bindUI() {
     const index = Math.floor(Math.random() * ducks.length);
     const duck = ducks[index];
 
-    duck.disintegrate();
+    duck.disintegrate("heavy");
     ducks.splice(index, 1);
   });
 }
@@ -87,30 +97,46 @@ function bindUI() {
 // Particle System
 // =====================
 class Particle {
-  constructor(x, y, size) {
+  constructor(x, y, size, intensity = "normal") {
     this.x = x;
     this.y = y;
     this.size = size;
-    this.vx = (Math.random() - 0.5) * 8;
-    this.vy = (Math.random() - 0.5) * 8;
+    this.vx = (Math.random() - 0.5) * (intensity === "heavy" ? 10 : 6);
+    this.vy = (Math.random() - 0.5) * (intensity === "heavy" ? 10 : 6);
     this.life = 1;
+    this.color = intensity === "heavy"
+      ? ["#f5d76e", "#ffb347", "#ff6f61"][Math.floor(Math.random() * 3)]
+      : "#f5d76e";
+    this.isHeavy = intensity === "heavy";
   }
 
   update() {
     this.x += this.vx;
     this.y += this.vy;
 
-    this.vx *= 0.96;
-    this.vy *= 0.96;
+    this.vx *= this.isHeavy ? 0.94 : 0.96;
+    this.vy *= this.isHeavy ? 0.94 : 0.96;
 
     this.life -= 0.025;
   }
 
   draw() {
+    ctx.save();
     ctx.globalAlpha = this.life;
-    ctx.fillStyle = "#f5d76e";
-    ctx.fillRect(this.x, this.y, this.size, this.size);
-    ctx.globalAlpha = 1;
+
+    if (this.isHeavy) {
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.size * 1.2, 0, Math.PI * 2);
+      ctx.fillStyle = this.color;
+      ctx.shadowBlur = 10;
+      ctx.shadowColor = this.color;
+      ctx.fill();
+    } else {
+      ctx.fillStyle = this.color;
+      ctx.fillRect(this.x, this.y, this.size, this.size);
+    }
+
+    ctx.restore();
   }
 }
 
@@ -186,9 +212,12 @@ class Duck {
     }
   }
 
-  disintegrate() {
-    for (let i = 0; i < 30; i += 1) {
-      particles.push(new Particle(this.x, this.y, this.size / 6));
+  disintegrate(intensity = "normal") {
+    const particleCount = intensity === "heavy" ? 40 : 30;
+    const particleSize = intensity === "heavy" ? this.size / 4 : this.size / 6;
+
+    for (let i = 0; i < particleCount; i += 1) {
+      particles.push(new Particle(this.x, this.y, particleSize, intensity));
     }
   }
 
@@ -212,20 +241,58 @@ function spawnDucks(count = 200) {
   ducks = Array.from({ length: count }, () => new Duck());
 }
 
-canvas.addEventListener("click", (event) => {
-  ducks.push(new Duck(event.clientX, event.clientY));
+function spawnDuckAtPointer(x, y) {
+  ducks.push(new Duck(x, y));
+}
+
+canvas.addEventListener("mousedown", (event) => {
+  if (event.button !== 0) {
+    return;
+  }
+
+  isMouseDown = true;
+  spawnPoint.x = event.clientX;
+  spawnPoint.y = event.clientY;
+  spawnDuckAtPointer(spawnPoint.x, spawnPoint.y);
+});
+
+canvas.addEventListener("mouseup", () => {
+  isMouseDown = false;
+  spawnTimer = 0;
+});
+
+canvas.addEventListener("mouseleave", () => {
+  isMouseDown = false;
+  spawnTimer = 0;
 });
 
 window.addEventListener("mousemove", (event) => {
   mouse.x = event.clientX;
   mouse.y = event.clientY;
+
+  if (isMouseDown) {
+    spawnPoint.x = event.clientX;
+    spawnPoint.y = event.clientY;
+  }
 });
 
 // =====================
 // Animation
 // =====================
-function animate() {
+function animate(timestamp = performance.now()) {
+  const deltaTime = timestamp - lastFrameTime;
+  lastFrameTime = timestamp;
+
   ctx.clearRect(0, 0, width, height);
+
+  if (isMouseDown) {
+    spawnTimer += deltaTime;
+
+    if (spawnTimer >= 250) {
+      spawnDuckAtPointer(spawnPoint.x, spawnPoint.y);
+      spawnTimer = 0;
+    }
+  }
 
   ducks.forEach((duck) => {
     duck.update();
@@ -237,6 +304,22 @@ function animate() {
         ducks[i].collide(ducks[j]);
       }
     }
+  }
+
+  if (settings.hunterMode) {
+    ducks = ducks.filter((duck) => {
+      const dx = duck.x - mouse.x;
+      const dy = duck.y - mouse.y;
+      const distance = Math.sqrt(dx * dx + dy * dy);
+      const hunterRadius = duck.size * 1.4;
+
+      if (distance <= hunterRadius) {
+        duck.disintegrate();
+        return false;
+      }
+
+      return true;
+    });
   }
 
   ducks.forEach((duck) => {

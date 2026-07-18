@@ -1,18 +1,30 @@
-﻿# Duck Pond
+﻿# Duck World
 
-Duck Pond is a lightweight browser-based canvas experiment that fills the screen with animated ducks, lets you tweak their size and speed, and enables or disables duck-to-duck collisions. The project is intentionally simple: it serves as a playful interactive scene built with plain HTML, CSS, and JavaScript.
+Duck World is a playful browser-based canvas experience that fills the screen with animated ducks, lets you tweak their behavior, and turns the scene into a tiny interactive toy. The project is built with plain HTML, CSS, and JavaScript and is designed to be easy to run locally.
 
 ## What this project does
 
 This project creates a full-screen animated pond scene where:
 
 - A background image is rendered behind the canvas.
-- A large number of ducks are spawned and continuously animated across the viewport.
+- A large number of ducks are spawned and animated across the viewport.
 - The mouse position influences duck movement, causing nearby ducks to steer toward the cursor.
-- You can adjust the duck size and movement speed with the controls panel.
-- You can toggle collisions on or off.
-- Clicking anywhere on the canvas spawns an additional duck.
-- The "Disintegrate Duck" button removes a duck and creates particle effects that simulate it breaking apart.
+- The settings panel lets you adjust duck size and movement speed.
+- You can toggle duck-to-duck collisions on or off.
+- Clicking on the canvas spawns an additional duck.
+- Holding the left mouse button on the canvas spawns ducks continuously every 250 ms.
+- The Disintegrate Duck button removes a duck and creates a burst of particles.
+- Hunter mode lets the cursor disintegrate nearby ducks when the toggle is enabled.
+
+## Recent updates
+
+The latest version of the project includes the following interaction and visual improvements:
+
+- Added a Hunter mode toggle in the settings panel.
+- Enabled hover-based disintegration in Hunter mode so ducks vanish when the cursor gets close enough.
+- Refined the particle system so the manual disintegrate action uses a more dramatic burst while Hunter mode uses a subtler effect.
+- Added click-and-hold duck spawning, with ducks appearing at the pointer location every 250 ms while the left mouse button is held.
+- Kept the original duck movement, collision, and particle systems intact while layering in the new interactions.
 
 ## How it works
 
@@ -22,14 +34,14 @@ The app uses a very small static structure:
 
 - [index.html](index.html) contains the settings panel, the canvas element, and the background layer.
 - [style.css](style.css) defines the full-screen layout, the animated pond background, and the styling of the control panel.
-- [script.js](script.js) handles the canvas animation loop, duck behavior, UI events, and particle effects.
+- [script.js](script.js) handles the animation loop, duck behavior, UI events, particle effects, and the new pointer-driven interactions.
 
 ### 2. Animation loop
 
-The animation is driven by `requestAnimationFrame`, which repeatedly:
+The animation is driven by requestAnimationFrame, which repeatedly:
 
 1. Clears the canvas.
-2. Updates each duckâ€™s position and orientation.
+2. Updates each duck's position and movement.
 3. Applies collision logic when enabled.
 4. Draws ducks to the canvas.
 5. Updates and renders particle effects for disintegration.
@@ -45,40 +57,33 @@ Each duck object has:
 
 ### 4. UI controls
 
-The settings panel exposes a few simple controls:
+The settings panel exposes the following controls:
 
 - Duck Size slider: adjusts the size of all ducks.
 - Duck Speed slider: changes the base movement speed.
 - Duck collisions checkbox: enables or disables collision behavior.
+- Hunter mode checkbox: enables cursor-based disintegration for nearby ducks.
 - Disintegrate Duck button: removes a random duck and creates a burst of particles.
 
 ## File structure
 
 ```text
 duck-world/
-â”œâ”€â”€ assets/
-â”‚   â”œâ”€â”€ background.png
-â”‚   â””â”€â”€ duck.png
-â”œâ”€â”€ index.html
-â”œâ”€â”€ script.js
-â”œâ”€â”€ style.css
-â””â”€â”€ README.md
+├── assets/
+│   ├── background.png
+│   └── duck.png
+├── index.html
+├── script.js
+├── style.css
+└── README.md
 ```
 
 ## Assets
 
 The project uses the following files from the assets folder:
 
-- [assets/background.png](assets/background.png) â€” the pond/scene background image.
-- [assets/duck.png](assets/duck.png) â€” the sprite used for rendering each duck.
-
-## Screenshots
-
-The project can be documented with screenshots of the main scene and settings panel. Add images like the following when available:
-
-![Duck Pond Scene](assets/background.png)
-
-> Add more screenshots here as the project evolves, such as a close-up of the settings panel or a frame showing the particle effect after disintegration.
+- [assets/background.png](assets/background.png) — the pond and scene background image.
+- [assets/duck.png](assets/duck.png) — the sprite used for rendering each duck.
 
 ## Run locally
 
@@ -97,11 +102,6 @@ Possible enhancements for the project include:
 - Adding sound effects and water ripple animations.
 - Supporting different duck colors or sprite variants.
 - Introducing food and feeding interactions.
-- Making the paddling movement more natural with smoother physics.
+- Making the duck movement feel more natural with smoother physics.
 - Adding more UI polish and a dark/light mode toggle.
-
-
-## Repository note
-
-This README documents the Duck Pond project and its static assets for future reference and sharing.
 
