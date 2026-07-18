@@ -1,4 +1,4 @@
-# Duck Pond
+﻿# Duck Pond
 
 Duck Pond is a lightweight browser-based canvas experiment that fills the screen with animated ducks, lets you tweak their size and speed, and enables or disables duck-to-duck collisions. The project is intentionally simple: it serves as a playful interactive scene built with plain HTML, CSS, and JavaScript.
 
@@ -29,7 +29,7 @@ The app uses a very small static structure:
 The animation is driven by `requestAnimationFrame`, which repeatedly:
 
 1. Clears the canvas.
-2. Updates each duck’s position and orientation.
+2. Updates each duckâ€™s position and orientation.
 3. Applies collision logic when enabled.
 4. Draws ducks to the canvas.
 5. Updates and renders particle effects for disintegration.
@@ -56,21 +56,21 @@ The settings panel exposes a few simple controls:
 
 ```text
 duck-world/
-├── assets/
-│   ├── background.png
-│   └── duck.png
-├── index.html
-├── script.js
-├── style.css
-└── README.md
+â”œâ”€â”€ assets/
+â”‚   â”œâ”€â”€ background.png
+â”‚   â””â”€â”€ duck.png
+â”œâ”€â”€ index.html
+â”œâ”€â”€ script.js
+â”œâ”€â”€ style.css
+â””â”€â”€ README.md
 ```
 
 ## Assets
 
 The project uses the following files from the assets folder:
 
-- [assets/background.png](assets/background.png) — the pond/scene background image.
-- [assets/duck.png](assets/duck.png) — the sprite used for rendering each duck.
+- [assets/background.png](assets/background.png) â€” the pond/scene background image.
+- [assets/duck.png](assets/duck.png) â€” the sprite used for rendering each duck.
 
 ## Screenshots
 
@@ -99,3 +99,9 @@ Possible enhancements for the project include:
 - Introducing food and feeding interactions.
 - Making the paddling movement more natural with smoother physics.
 - Adding more UI polish and a dark/light mode toggle.
+
+
+## Repository note
+
+This README documents the Duck Pond project and its static assets for future reference and sharing.
+
